@@ -1,4 +1,3 @@
-змінили структуру проекту з майстру 1234    
 # Структура майбутнього проєкту (`Python` + `PostgreSQL`)
 
 ## Дерево директорій (цільова структура)
@@ -17,8 +16,8 @@ src/
         router.py            # збірка роутерів v1
         endpoints/
           __init__.py
-          auth.py            # реєстрація/вхід/refresh/logout
-          workouts.py        # CRUD спортивних справ + фільтри/сума
+          auth.py            # реєстрація/вхід
+          activities.py      # CRUD записів активності + фільтри/підсумки
           health.py          # healthcheck/readiness
 
     core/
@@ -34,19 +33,19 @@ src/
         __init__.py
         entities.py          # User
         schemas.py           # DTO/валідація (Pydantic)
-      workouts/
+      activities/
         __init__.py
-        entities.py          # WorkoutEntry
-        schemas.py           # DTO/валідація (назва, хвилини, дата, нотатки)
+        entities.py          # ActivityEntry, Exercise
+        schemas.py           # DTO/валідація (вправа, хвилини, дата, нотатки)
 
     application/
       __init__.py
       users/
         __init__.py
         use_cases.py         # реєстрація/автентифікація
-      workouts/
+      activities/
         __init__.py
-        use_cases.py         # додавання/вивід/редагування/видалення/сума
+        use_cases.py         # додавання/відображення/редагування/видалення/підсумки
 
     infrastructure/
       __init__.py
@@ -57,25 +56,26 @@ src/
         repositories/
           __init__.py
           users.py           # доступ до таблиць користувачів
-          workouts.py        # доступ до таблиць спортивних справ
+          activities.py      # доступ до таблиць записів активності
       auth/
         __init__.py
         password_hash.py     # bcrypt (cost >= 10)
-        tokens.py            # access/refresh токени
+        tokens.py            # access tokens
 
     utils/
       __init__.py
-      time.py                # робота з датами/UTC/валідація "не в майбутньому"
+      time.py                # APP_TIMEZONE + перевірка поточної дати
 ```
 
 ## Відповідність вимогам зі `spec/`
 
 - `app/api/v1/endpoints/auth.py` → `REQ-F-001`, `REQ-F-002`, `REQ-NF-001`
-- `app/api/v1/endpoints/workouts.py` → `REQ-F-010..016`, `REQ-F-020..024`, `REQ-F-030..032`, `REQ-NF-002`, `REQ-NF-005`
+- `app/api/v1/endpoints/activities.py` → `REQ-F-010..016`, `REQ-F-020..024`, `REQ-F-030..032`, `REQ-NF-002`, `REQ-NF-005`
 - `app/application/*/use_cases.py` → бізнес-логіка та перевірки доступу/валідації (включно з редагуванням)
 - `app/infrastructure/db/*` → PostgreSQL-персистентність + ізоляція даних користувача (`user_id`)
 
 ## Дані (PostgreSQL)
 
-- `users`: `id`, `username/email`, `password_hash`, `created_at`, `updated_at`
-- `workout_entries`: `id`, `user_id`, `exercise_name`, `duration_minutes`, `performed_date`, `notes`, `created_at`, `updated_at`
+- `users`: `id`, `login`, `password_hash`, `created_at`, `updated_at`
+- `exercises`: `id`, `name`, `created_at`, `updated_at`
+- `activity_entries`: `id`, `user_id`, `exercise_id`, `duration_minutes`, `performed_date`, `notes`, `created_at`, `updated_at`
